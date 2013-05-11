@@ -1,22 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <!-- for distribution and repository settings -->
+  <parent>
+    <groupId>com.maestrodev</groupId>
+    <artifactId>maestrodev-parent</artifactId>
+    <version>2</version>
+  </parent>
   <groupId>com.wordnik</groupId>
   <artifactId>swagger-ui</artifactId>
   <version>1.1.8-SNAPSHOT</version>
-  <dependencies>
-  </dependencies>
+  <packaging>zip</packaging>
   <build>
-    <finalName>swagger-ui</finalName>
-    <resources>
-      <resource>
-        <directory>${basedir}/dist</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>**</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
+      <plugin>
+        <groupId>com.maestrodev</groupId>
+        <artifactId>zip-bundle-maven-plugin</artifactId>
+        <version>1.0</version>
+        <extensions>true</extensions>
+      </plugin>
       <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
@@ -24,11 +25,10 @@
           <!-- optional -->
           <configuration>
             <executable>${basedir}/bin/build.sh</executable>
-            <workingDirectory>${basedir}</workingDirectory>
           </configuration>
           <executions>
               <execution>
-                  <phase>generate-resources</phase>
+                  <phase>prepare-package</phase>
                   <goals>
                       <goal>exec</goal>
                   </goals>
@@ -36,5 +36,18 @@
           </executions>
       </plugin>
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <descriptors>
+              <descriptor>src/main/assembly/dist.xml</descriptor>
+            </descriptors>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>
