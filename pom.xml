@@ -10,6 +10,11 @@
   <artifactId>swagger-ui</artifactId>
   <version>0.1.14-maestrodev-1-SNAPSHOT</version>
   <packaging>zip</packaging>
+  <scm>
+    <connection>scm:git:git@github.com:maestrodev/swagger-ui.git</connection>
+    <url>scm:git:git@github.com:maestrodev/swagger-ui.git</url>
+    <developerConnection>scm:git:git@github.com:maestrodev/swagger-ui.git</developerConnection>
+  </scm>
   <build>
     <plugins>
       <plugin>
