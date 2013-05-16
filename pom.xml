@@ -8,7 +8,7 @@
   </parent>
   <groupId>com.wordnik</groupId>
   <artifactId>swagger-ui</artifactId>
-  <version>0.1.14-maestrodev-1</version>
+  <version>0.1.14-maestrodev-2-SNAPSHOT</version>
   <packaging>zip</packaging>
   <scm>
     <connection>scm:git:git@github.com:maestrodev/swagger-ui.git</connection>
