@@ -23,23 +23,6 @@
         <version>1.0</version>
         <extensions>true</extensions>
       </plugin>
-      <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.2.1</version>
-          <!-- optional -->
-          <configuration>
-            <executable>${basedir}/bin/build.sh</executable>
-          </configuration>
-          <executions>
-              <execution>
-                  <phase>prepare-package</phase>
-                  <goals>
-                      <goal>exec</goal>
-                  </goals>
-              </execution>
-          </executions>
-      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
