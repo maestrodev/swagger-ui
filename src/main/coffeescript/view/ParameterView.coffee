@@ -1,9 +1,16 @@
 class ParameterView extends Backbone.View
   initialize: ->
-
+    Handlebars.registerHelper 'isArray',
+      (param, opts) ->
+        if param.type.toLowerCase() == 'array' || param.allowMultiple
+          opts.fn(@)
+        else
+          opts.inverse(@)
+          
   render: ->
+    type = @model.type || @model.dataType
     @model.isBody = true if @model.paramType == 'body'
-    @model.isFile = true if @model.dataType == 'file'
+    @model.isFile = true if type.toLowerCase() == 'file'
 
     template = @template()
     $(@el).html(template(@model))
@@ -19,18 +26,23 @@ class ParameterView extends Backbone.View
     else
       $('.model-signature', $(@el)).html(@model.signature)
 
+    isParam = false
+
+    if @model.isBody
+      isParam = true
+
     contentTypeModel =
-      isParam: false
+      isParam: isParam
 
-    # support old syntax
-    if @model.supportedContentTypes
-      contentTypeModel.produces = @model.supportedContentTypes
+    contentTypeModel.consumes = @model.consumes
 
-    if @model.produces
-      contentTypeModel.produces = @model.produces
+    if isParam
+      parameterContentTypeView = new ParameterContentTypeView({model: contentTypeModel})
+      $('.parameter-content-type', $(@el)).append parameterContentTypeView.render().el
 
-    contentTypeView = new ContentTypeView({model: contentTypeModel})
-    $('.content-type', $(@el)).append contentTypeView.render().el
+    else
+      responseContentTypeView = new ResponseContentTypeView({model: contentTypeModel})
+      $('.response-content-type', $(@el)).append responseContentTypeView.render().el
 
     @
 

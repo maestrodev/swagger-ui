@@ -1,6 +1,7 @@
 fs          = require 'fs'
 path        = require 'path'
 {exec}      = require 'child_process'
+less        = require 'less'
 
 sourceFiles  = [
   'SwaggerUi'
@@ -12,6 +13,8 @@ sourceFiles  = [
   'view/ParameterView'
   'view/SignatureView'
   'view/ContentTypeView'
+  'view/ResponseContentTypeView'
+  'view/ParameterContentTypeView'
 ]
 
 
@@ -62,20 +65,38 @@ task 'dist', 'Build a distribution', ->
         throw err if err
         fs.unlink 'dist/_swagger-ui.coffee'
         console.log '   : Combining with javascript...'
-        exec 'cat src/main/javascript/doc.js dist/_swagger-ui-templates.js dist/_swagger-ui.js > dist/swagger-ui.js', (err, stdout, stderr) ->
-          throw err if err
-          fs.unlink 'dist/_swagger-ui.js'
-          fs.unlink 'dist/_swagger-ui-templates.js'
-          console.log '   : Minifying all...'
-          exec 'java -jar "./bin/yuicompressor-2.4.7.jar" --type js -o ' + 'dist/swagger-ui.min.js ' + 'dist/swagger-ui.js', (err, stdout, stderr) ->
+
+        fs.readFile 'package.json', 'utf8', (err, fileContents) ->
+          obj = JSON.parse(fileContents)
+          exec 'echo "// swagger-ui.js" > dist/swagger-ui.js'
+          exec 'echo "// version ' + obj.version + '" >> dist/swagger-ui.js'
+          exec 'cat src/main/javascript/doc.js dist/_swagger-ui-templates.js dist/_swagger-ui.js >> dist/swagger-ui.js', (err, stdout, stderr) ->
             throw err if err
-            pack()
+            fs.unlink 'dist/_swagger-ui.js'
+            fs.unlink 'dist/_swagger-ui-templates.js'
+            console.log '   : Minifying all...'
+            exec 'java -jar "./bin/yuicompressor-2.4.7.jar" --type js -o ' + 'dist/swagger-ui.min.js ' + 'dist/swagger-ui.js', (err, stdout, stderr) ->
+              throw err if err
+              lessc()
+
+  lessc = ->
+    # Someone who knows CoffeeScript should make this more Coffee-licious
+    console.log '   : Compiling LESS...'
+
+    less.render fs.readFileSync("src/main/less/screen.less", 'utf8'), (err, css) ->
+      fs.writeFileSync("src/main/html/css/screen.css", css)
+    less.render fs.readFileSync("src/main/less/reset.less", 'utf8'), (err, css) ->
+      fs.writeFileSync("src/main/html/css/reset.css", css)
+    pack()
 
   pack = ->
     console.log '   : Packaging...'
     exec 'cp -r lib dist'
+    console.log '   : Copied swagger-ui libs'
     exec 'cp -r node_modules/swagger-client/lib/swagger.js dist/lib'
+    console.log '   : Copied swagger dependencies'
     exec 'cp -r src/main/html/* dist'
+    console.log '   : Copied html dependencies'
     console.log '   !'
 
 task 'spec', "Run the test suite", ->
@@ -105,6 +126,7 @@ task 'watch', 'Watch source files for changes and autocompile', ->
   watchFiles("src/main/template")
   watchFiles("src/main/javascript")
   watchFiles("src/main/html")
+  watchFiles("src/main/less")
   watchFiles("src/test")
 
 notify = (message) ->
